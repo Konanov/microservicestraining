@@ -46,6 +46,7 @@ public class UniversalExceptionHandler extends ResponseEntityExceptionHandler {
     protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex,
                                                                   HttpHeaders headers, HttpStatus status,
                                                                   WebRequest request) {
+
         ExceptionalResponse response = responseFrom("Validation failed", ex.getBindingResult().toString());
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
