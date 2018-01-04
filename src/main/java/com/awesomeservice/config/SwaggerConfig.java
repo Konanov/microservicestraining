@@ -1,4 +1,4 @@
-package com.awesomeservice;
+package com.awesomeservice.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -16,6 +16,7 @@ import static java.util.Arrays.asList;
 
 @Configuration
 @EnableSwagger2
+@SuppressWarnings("unused")
 public class SwaggerConfig {
 
     private static final Contact DEFAULT_CONTACT = new Contact("Mark Voprosov", "", "");
