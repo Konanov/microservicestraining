@@ -26,4 +26,23 @@ public class Subject {
     @ApiModelProperty(notes = "Birthday should be in the past")
     @Past(message = "Birthday should be in the past")
     private Date birthDay;
+
+    @ApiModelProperty(notes = "Users credentials")
+    private Credentials credentials;
+
+    @ApiModelProperty(notes = "Version of model")
+    private int version;
+
+    @Data
+    @AllArgsConstructor
+    static class Credentials {
+
+        @ApiModelProperty(notes = "Minimum of 5 characters")
+        @Size(min = 5, message = "Minimum 5 characters")
+        private String name;
+
+        @ApiModelProperty(notes = "Minimum of 5 characters")
+        @Size(min = 5, message = "Minimum 5 characters")
+        private String surname;
+    }
 }

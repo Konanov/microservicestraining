@@ -17,18 +17,47 @@ public class SubjectDaoService {
     private List<Subject> subjects = new CopyOnWriteArrayList<>();
 
     public SubjectDaoService() {
-        subjects.add(new Subject(randomUUID(), "John Doe", new Date()));
-        subjects.add(new Subject(randomUUID(), "Peter Pan", new Date()));
-        subjects.add(new Subject(randomUUID(), "Martin King", new Date()));
+        subjects.add(new Subject(randomUUID(), "John Doe", new Date(), null, 1));
+        subjects.add(new Subject(randomUUID(), "Peter Pan", new Date(), null, 1));
+        subjects.add(new Subject(randomUUID(), "Martin King", new Date(), null, 1));
+        subjects.add(new Subject(randomUUID(), null, new Date(), new Subject.Credentials("John", "Doe"), 2));
+        subjects.add(new Subject(randomUUID(), null, new Date(), new Subject.Credentials("Peter", "Pan"), 2));
+        subjects.add(new Subject(randomUUID(), null, new Date(), new Subject.Credentials("Martin", "King"), 2));
+    }
+
+    public Subject findOne(String name, String surname, int version) {
+        Subject foundSubject;
+        if (version == 1) {
+            foundSubject = subjects.stream()
+                    .filter(subject -> String.format("%s %s", name, surname).equals(subject.getName()))
+                    .findAny()
+                    .orElseThrow(
+                            () -> new SubjectNotFound(
+                                    String.format("Subject with name = '%s' and surname = '%s' not found", name, surname)
+                            )
+                    );
+        } else {
+            foundSubject = subjects.stream()
+                    .filter(subject -> new Subject.Credentials(name, surname).equals(subject.getCredentials()))
+                    .findAny()
+                    .orElseThrow(
+                            () -> new SubjectNotFound(
+                                    String.format("Subject with name = '%s' and surname = '%s' not found", name, surname)
+                            )
+                    );
+        }
+        return foundSubject;
     }
 
     public Subject findOne(UUID uuid) {
         return subjects.stream()
-                       .filter(subject -> uuid.equals(subject.getUuid()))
-                       .findAny()
-                       .orElseThrow(
-                               () -> new SubjectNotFound(String.format("Subject with uuid = '%s' not found", uuid))
-                       );
+                .filter(subject -> uuid.equals(subject.getUuid()))
+                .findAny()
+                .orElseThrow(
+                        () -> new SubjectNotFound(
+                                String.format("Subject with uuid = '%s' not found", uuid)
+                        )
+                );
     }
 
     public Subject save(Subject subject) {
