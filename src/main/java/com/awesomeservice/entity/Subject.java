@@ -1,23 +1,33 @@
 package com.awesomeservice.entity;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.GenericGenerator;
 
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.OneToOne;
 import javax.validation.constraints.Past;
 import javax.validation.constraints.Size;
 import java.util.Date;
-import java.util.UUID;
 
 @Data
+@Entity
 @ApiModel("Traceable subject to observe.")
 @NoArgsConstructor
 @AllArgsConstructor
 public class Subject {
 
-    private UUID uuid;
+    @Id
+    @GeneratedValue(generator = "subject-uuid")
+    @GenericGenerator(name = "subject-uuid", strategy = "uuid")
+    private String uuid;
 
     @ApiModelProperty(notes = "Minimum of 5 characters")
     @Size(min = 5, message = "Minimum 5 characters")
@@ -27,6 +37,7 @@ public class Subject {
     @Past(message = "Birthday should be in the past")
     private Date birthDay;
 
+    @OneToOne
     @ApiModelProperty(notes = "Users credentials")
     private Credentials credentials;
 
@@ -34,8 +45,15 @@ public class Subject {
     private int version;
 
     @Data
+    @Entity
     @AllArgsConstructor
-    static class Credentials {
+    @NoArgsConstructor
+    private static class Credentials {
+
+        @Id
+        @GeneratedValue(generator = "credentials-uuid")
+        @GenericGenerator(name = "credentials-uuid", strategy = "uuid")
+        private String uuid;
 
         @ApiModelProperty(notes = "Minimum of 5 characters")
         @Size(min = 5, message = "Minimum 5 characters")
@@ -44,5 +62,10 @@ public class Subject {
         @ApiModelProperty(notes = "Minimum of 5 characters")
         @Size(min = 5, message = "Minimum 5 characters")
         private String surname;
+
+        public Credentials(String name, String surname) {
+            this.name = name;
+            this.surname = surname;
+        }
     }
 }

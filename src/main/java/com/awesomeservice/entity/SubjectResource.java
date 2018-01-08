@@ -4,18 +4,25 @@ import com.awesomeservice.exception.InvalidSubject;
 import lombok.RequiredArgsConstructor;
 import org.springframework.hateoas.Resource;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.validation.Valid;
 import java.net.URI;
 import java.util.List;
-import java.util.UUID;
 
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
 
 @RestController
+@SuppressWarnings({"WeakerAccess", "unused"})
 @RequiredArgsConstructor
 public class SubjectResource {
 
@@ -27,7 +34,7 @@ public class SubjectResource {
     }
 
     @GetMapping("/subjects/{uuid}")
-    public Resource<Subject> retrieveSubject(@PathVariable UUID uuid) {
+    public Resource<Subject> retrieveSubject(@PathVariable String uuid) {
         Resource<Subject> subject = new Resource<>(subjectDao.findOne(uuid));
         subject.add(linkTo(
                 methodOn(this.getClass())
@@ -91,7 +98,7 @@ public class SubjectResource {
 
     private Resource<Subject> subjectResourceVersionOne(@RequestParam String name,
                                                         @RequestParam String surname) {
-        Resource<Subject> subject = new Resource<>(subjectDao.findOne(name, surname, 1));
+        Resource<Subject> subject = new Resource<>(subjectDao.findOne(String.format("%s %s", name, surname), 1));
         subject.add(linkTo(
                 methodOn(this.getClass())
                         .retrieveAllSubjects())
@@ -124,7 +131,7 @@ public class SubjectResource {
     }
 
     @DeleteMapping("/subjects/{uuid}")
-    public void deleteSubject(@PathVariable UUID uuid) {
+    public void deleteSubject(@PathVariable String uuid) {
         subjectDao.deleteByUuid(uuid);
     }
 

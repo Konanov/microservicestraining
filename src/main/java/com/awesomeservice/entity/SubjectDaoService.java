@@ -2,89 +2,58 @@ package com.awesomeservice.entity;
 
 import com.awesomeservice.exception.InvalidSubject;
 import com.awesomeservice.exception.SubjectNotFound;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
-import java.util.Date;
 import java.util.List;
-import java.util.UUID;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 import static java.util.UUID.randomUUID;
 
 @Component
+@RequiredArgsConstructor
 public class SubjectDaoService {
 
-    private List<Subject> subjects = new CopyOnWriteArrayList<>();
+    private final SubjectRepository repository;
 
-    public SubjectDaoService() {
-        subjects.add(new Subject(randomUUID(), "John Doe", new Date(), null, 1));
-        subjects.add(new Subject(randomUUID(), "Peter Pan", new Date(), null, 1));
-        subjects.add(new Subject(randomUUID(), "Martin King", new Date(), null, 1));
-        subjects.add(new Subject(randomUUID(), null, new Date(), new Subject.Credentials("John", "Doe"), 2));
-        subjects.add(new Subject(randomUUID(), null, new Date(), new Subject.Credentials("Peter", "Pan"), 2));
-        subjects.add(new Subject(randomUUID(), null, new Date(), new Subject.Credentials("Martin", "King"), 2));
-    }
-
-    public Subject findOne(String name, String surname, int version) {
-        Subject foundSubject;
-        if (version == 1) {
-            foundSubject = subjects.stream()
-                    .filter(subject -> String.format("%s %s", name, surname).equals(subject.getName()))
-                    .findAny()
-                    .orElseThrow(
-                            () -> new SubjectNotFound(
-                                    String.format("Subject with name = '%s' and surname = '%s' not found", name, surname)
-                            )
-                    );
-        } else {
-            foundSubject = subjects.stream()
-                    .filter(subject -> new Subject.Credentials(name, surname).equals(subject.getCredentials()))
-                    .findAny()
-                    .orElseThrow(
-                            () -> new SubjectNotFound(
-                                    String.format("Subject with name = '%s' and surname = '%s' not found", name, surname)
-                            )
-                    );
-        }
-        return foundSubject;
-    }
-
-    public Subject findOne(UUID uuid) {
-        return subjects.stream()
-                .filter(subject -> uuid.equals(subject.getUuid()))
-                .findAny()
+    Subject findOne(String name, int version) {
+        return repository.findByNameAndVersion(name, version)
                 .orElseThrow(
                         () -> new SubjectNotFound(
-                                String.format("Subject with uuid = '%s' not found", uuid)
+                                String.format("Subject with name = '%s' not found", name)
                         )
                 );
     }
 
-    public Subject save(Subject subject) {
-        subject.setUuid(randomUUID());
-        subjects.add(subject);
-        return subject;
+    Subject findOne(String name, String surname, int version) {
+        return repository.findByVersionAndCredentials_NameAndCredentials_Surname(version, name, surname)
+                .orElseThrow(
+                        () -> new SubjectNotFound(
+                                String.format("Subject with name = '%s' and surname = '%s' not found", name, surname)
+                        )
+                );
     }
 
-    public Subject deleteByUuid(UUID uuid) {
+    Subject findOne(String uuid) {
+        return repository.getOne(uuid);
+    }
+
+    Subject save(Subject subject) {
+        subject.setUuid(randomUUID().toString());
+        return repository.save(subject);
+    }
+
+    void deleteByUuid(String uuid) {
         validate(uuid);
-        Subject toDelete =  subjects.stream()
-                       .filter(subject -> uuid.equals(subject.getUuid()))
-                       .findAny()
-                       .orElseThrow(
-                               () -> new SubjectNotFound(String.format("Subject with uuid = '%s' not found", uuid))
-                       );
-        subjects.remove(toDelete);
-        return toDelete;
+        repository.deleteById(uuid);
     }
 
-    private void validate(UUID uuid) {
-        if (null == uuid) {
+    private void validate(String uuid) {
+        if (null == uuid || uuid.isEmpty()) {
             throw new InvalidSubject("Inappropriate uuid format");
         }
     }
 
-    public List<Subject> findAll() {
-        return subjects;
+    List<Subject> findAll() {
+        return repository.findAll();
     }
 }
