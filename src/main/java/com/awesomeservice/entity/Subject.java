@@ -1,6 +1,6 @@
 package com.awesomeservice.entity;
 
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
@@ -19,6 +19,7 @@ import java.util.Date;
 
 @Data
 @Entity
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 @ApiModel("Traceable subject to observe.")
 @NoArgsConstructor
 @AllArgsConstructor
@@ -37,7 +38,7 @@ public class Subject {
     @Past(message = "Birthday should be in the past")
     private Date birthDay;
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.EAGER)
     @ApiModelProperty(notes = "Users credentials")
     private Credentials credentials;
 

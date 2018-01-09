@@ -1,0 +1,23 @@
+spring:
+  jackson:
+    serialization:
+    date-format: com.fasterxml.jackson.databind.util.ISO8601DateFormat
+  jpa:
+    show-sql: true
+  h2:
+    console:
+      enabled: true
+
+management:
+  security:
+    enabled: false
+
+security:
+  basic:
+    enabled: false
+  user:
+    name: username
+    password: password
+
+
+

@@ -98,18 +98,16 @@ public class SubjectResource {
 
     private Resource<Subject> subjectResourceVersionOne(@RequestParam String name,
                                                         @RequestParam String surname) {
-        Resource<Subject> subject = new Resource<>(subjectDao.findOne(String.format("%s %s", name, surname), 1));
-        subject.add(linkTo(
-                methodOn(this.getClass())
-                        .retrieveAllSubjects())
-                .withRel("all-users")
-        );
-        return subject;
+        return getSubjectResource(name, surname, 1);
     }
 
     private Resource<Subject> subjectResourceVersionTwo(@RequestParam String name,
                                                         @RequestParam String surname) {
-        Resource<Subject> subject = new Resource<>(subjectDao.findOne(name, surname, 2));
+        return getSubjectResource(name, surname, 2);
+    }
+
+    private Resource<Subject> getSubjectResource(@RequestParam String name, @RequestParam String surname, int version) {
+        Resource<Subject> subject = new Resource<>(subjectDao.findOne(String.format("%s %s", name, surname), version));
         subject.add(linkTo(
                 methodOn(this.getClass())
                         .retrieveAllSubjects())
