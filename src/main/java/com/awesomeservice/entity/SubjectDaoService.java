@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Optional;
 
 import static java.util.UUID.randomUUID;
 
@@ -33,8 +34,8 @@ public class SubjectDaoService {
                 );
     }
 
-    Subject findOne(String uuid) {
-        return repository.getOne(uuid);
+    Optional<Subject> findOne(String uuid) {
+        return repository.findByUuid(uuid);
     }
 
     Subject save(Subject subject) {

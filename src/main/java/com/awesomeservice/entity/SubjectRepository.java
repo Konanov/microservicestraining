@@ -10,6 +10,5 @@ public interface SubjectRepository extends JpaRepository<Subject, String> {
 
     Optional<Subject> findByVersionAndCredentials_NameAndCredentials_Surname(int version, String name, String surname);
 
-    @Override
-    Subject getOne(String uuid);
+    Optional<Subject> findByUuid(String uuid);
 }

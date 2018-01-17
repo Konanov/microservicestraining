@@ -1,6 +1,7 @@
 package com.awesomeservice.entity;
 
 import com.awesomeservice.exception.InvalidSubject;
+import com.awesomeservice.exception.SubjectNotFound;
 import lombok.RequiredArgsConstructor;
 import org.springframework.hateoas.Resource;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +17,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.validation.Valid;
 import java.net.URI;
+import java.util.Collection;
 import java.util.List;
 
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
@@ -28,6 +30,8 @@ public class SubjectResource {
 
     private final SubjectDaoService subjectDao;
 
+    private final PostRepository postRepository;
+
     @GetMapping("/subjects")
     public List<Subject> retrieveAllSubjects() {
         return subjectDao.findAll();
@@ -35,7 +39,9 @@ public class SubjectResource {
 
     @GetMapping("/subjects/{uuid}")
     public Resource<Subject> retrieveSubject(@PathVariable String uuid) {
-        Resource<Subject> subject = new Resource<>(subjectDao.findOne(uuid));
+        Resource<Subject> subject = new Resource<>(subjectDao.findOne(uuid).orElseThrow(
+                        () -> new SubjectNotFound(String.format("No subject is present by uuid: %s", uuid)))
+        );
         subject.add(linkTo(
                 methodOn(this.getClass())
                         .retrieveAllSubjects())
@@ -137,5 +143,29 @@ public class SubjectResource {
         if (null == subject.getName() || null == subject.getBirthDay()) {
             throw new InvalidSubject("Subject's name or birthday has inappropriate format");
         }
+    }
+
+    @GetMapping("/subjects/{uuid}/posts")
+    public Collection<Post> getUsersPosts(@PathVariable String uuid) {
+        Subject subject = subjectDao.findOne(uuid).orElseThrow(
+                () -> new SubjectNotFound(String.format("No subject is present by uuid: %s", uuid))
+        );
+        return subject.getPosts();
+    }
+
+    @PostMapping("/subjects/{uuid}/posts")
+    public ResponseEntity<Object> savePost(@PathVariable String uuid, @RequestBody Post post) {
+        Subject subject = subjectDao.findOne(uuid)
+                .orElseThrow(
+                        () -> new SubjectNotFound(String.format("No subject is present by uuid: %s", uuid))
+                );
+        post.setSubject(subject);
+        Post savedPost = postRepository.save(post);
+        URI location = ServletUriComponentsBuilder
+                .fromCurrentRequest()
+                .path("/{uuid}")
+                .buildAndExpand(savedPost.getId())
+                .toUri();
+        return ResponseEntity.created(location).build();
     }
 }

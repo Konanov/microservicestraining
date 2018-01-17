@@ -8,14 +8,12 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.GenericGenerator;
 
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.OneToOne;
+import javax.persistence.*;
 import javax.validation.constraints.Past;
 import javax.validation.constraints.Size;
+import java.util.Collection;
 import java.util.Date;
+import java.util.List;
 
 @Data
 @Entity
@@ -44,6 +42,9 @@ public class Subject {
 
     @ApiModelProperty(notes = "Version of model")
     private int version;
+
+    @OneToMany(mappedBy = "subject")
+    private Collection<Post> posts;
 
     @Data
     @Entity
